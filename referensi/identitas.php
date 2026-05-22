@@ -1,6 +1,7 @@
-<?
- ?>
-<?
+<?php
+// =========================================================================
+// INIT & INCLUDE FILES
+// =========================================================================
 require_once('../include/errorhandler.php');
 require_once('../include/db_functions.php');
 require_once('../include/sessioninfo.php');
@@ -8,263 +9,269 @@ require_once('../include/common.php');
 require_once('../include/config.php');
 require_once('../cek.php');
 
-$departemen="";
-if (isset($_REQUEST['departemen']))
-	$departemen=$_REQUEST['departemen'];
+OpenDb();
+
+// =========================================================================
+// PENANGKAPAN PARAMETER
+// =========================================================================
+$departemen = isset($_REQUEST['departemen']) ? $_REQUEST['departemen'] : '';
 	
 $title = "Sekolah";
-if ($departemen=='yayasan')
+if ($departemen == 'yayasan') {
 	$title = "";
+}
 
-$op = $_REQUEST['op'];
-if ($op == "delheader") 
-{
-	OpenDb();
+// =========================================================================
+// PROSES AKSI (HAPUS DATA)
+// =========================================================================
+$op = isset($_REQUEST['op']) ? $_REQUEST['op'] : '';
+
+if ($op == "delheader") {
 	$sql = "SELECT foto FROM identitas WHERE departemen='$departemen'";
 	$result = QueryDb($sql);
 	$row = @mysqli_fetch_row($result);
-	if ($row[0] != '')
+	if ($row[0] != '') {
 		$sql = "UPDATE identitas SET nama=NULL, situs=NULL, email=NULL, alamat1=NULL, 
 					   alamat2=NULL, telp1=NULL, telp2=NULL, telp3=NULL, telp4=NULL, fax1=NULL, fax2=NULL 
 				 WHERE departemen = '$departemen'";
-	else
+    } else {
 		$sql = "DELETE FROM identitas WHERE departemen = '$departemen'";
+    }
 	QueryDb($sql);		
-	CloseDb();		
 }
 
-if ($op == "dellogo") 
-{
-	OpenDb();
+if ($op == "dellogo") {
 	$sql = "SELECT nama FROM identitas WHERE departemen='$departemen'";
 	$result = QueryDb($sql);
 	$row = @mysqli_fetch_row($result);
-	if ($row[0] != '')
+	if ($row[0] != '') {
 		$sql = "UPDATE identitas SET foto=NULL WHERE departemen = '$departemen'";
-	else
+    } else {
 		$sql = "DELETE FROM identitas WHERE departemen = '$departemen'";
+    }
 	QueryDb($sql);		
-	CloseDb();		
 }
-
-OpenDb();
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!DOCTYPE html>
+<html lang="id">
 <head>
-<link rel="stylesheet" type="text/css" href="../style/style.css">
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Untitled Document</title>
-<link rel="stylesheet" type="text/css" href="../style/tooltips.css">
-<script language="javascript" src="../script/tooltips.js"></script>
-<script language="javascript" src="../script/tables.js"></script>
-<script language="javascript" src="../script/tools.js"></script>
-<script language="javascript">
-function tambah_logo() {
-	var departemen=document.getElementById('departemen').value;
-	newWindow('logo2.php?departemen='+departemen, 'InputLogoSekolah','550','305','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function tambah() {
-	var departemen=document.getElementById('departemen').value;
-	newWindow('identitas_add.php?departemen='+departemen, 'InputIdentitasSekolah','675','430','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function getfresh() {
-	var departemen=document.getElementById('departemen').value;
-	document.location.href="identitas.php?departemen="+departemen;
-}
-
-function edit() {
-	var departemen=document.getElementById('departemen').value;
-	newWindow('identitas_edit.php?departemen='+departemen, 'UbahIdentitasSekolah','675','430','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function hapus(bagian) {
-	var departemen=document.getElementById('departemen').value;
-	if (bagian=='header'){
-		if (confirm("Apakah anda yakin akan menghapus identitas sekolah ini?"))
-			document.location.href = "identitas.php?op=delheader&departemen="+departemen;
-	} else if (bagian=='logo'){
-		if (confirm("Apakah anda yakin akan menghapus identitas sekolah ini?"))
-			document.location.href = "identitas.php?op=dellogo&departemen="+departemen;
-	}
-}
-function chg_dep(){
-	var departemen=document.getElementById('departemen').value;
-	document.location.href = "identitas.php?departemen="+departemen;
-}
-function cetak(){
-	var departemen=document.getElementById('departemen').value;
-	newWindow('kop_cetak.php?departemen='+departemen, 'CetakHeader','790','650','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-</script>
-</head>
-
-<body>
-
-<table border="0" width="100%" height="100%" background="../images/ico/Hometrans.png" style="margin:0;padding:0;background-repeat:no-repeat;">
-<!-- TABLE BACKGROUND IMAGE -->
-<tr><td align="center" valign="top" background="" style="margin:0;padding:0;background-repeat:no-repeat;">
-
-<table border="0" width="100%" align="center">
-<!-- TABLE CENTER -->
-<tr height="300">
-  <td align="left" valign="top">
-
-	<table border="0"width="95%" align="center">
-    <tr>
-        <td align="right"><font size="4" face="Verdana, Arial, Helvetica, sans-serif" style="background-color:#ffcc66">&nbsp;</font>&nbsp;<font size="4" face="Verdana, Arial, Helvetica, sans-serif" color="Gray">Identitas Sekolah</font></td>
-    </tr>
-    <tr>
-        <td align="right"><a href="../referensi.php" target="content">
-          <font size="1" face="Verdana" color="#000000"><b>Referensi</b></font></a>&nbsp>&nbsp <font size="1" face="Verdana" color="#000000"><b>Identitas Sekolah</b></font>
-        </td>
-    </tr>
-     <tr>
-      <td align="left">&nbsp;</td>
-      </tr>
-	</table>
-	<br /><br />
-    <table border="0" cellspacing="0" cellpadding="0" width="95%" align="center">
-		<tr>
-			<td height="50" valign="top">
-				<strong>Departemen : </strong>
-				<select name="departemen" id="departemen" onchange="chg_dep()">
-					<option value="yayasan" <?=StringIsSelected($departemen,'yayasan')?>>Umum</option>
-					<?
-					$res = QueryDb("SELECT departemen FROM departemen WHERE aktif=1 ORDER BY urutan");
-					while ($r = @mysqli_fetch_array($res)){
-					if ($departemen=="")
-						$departemen=$r['departemen'];
-					?>
-					<option value="<?=$r['departemen']?>" <?=StringIsSelected($departemen,$r['departemen'])?>><?=$r['departemen']?></option>
-					<?
-					}
-					?>
-				</select>
-			</td>
-			<td align="right"><a href="javascript:cetak()"><img border="0" src="../images/ico/print.png" />&nbsp;Cetak KOP Surat</a></td>
-		</tr>
-	</table><br>
-	<?
-	$replid = 0;
-	$foto = 0;
-	$nama = 0;
-	$sql="SELECT * FROM identitas WHERE departemen='$departemen' ORDER BY replid DESC LIMIT 1";
-	$result=QueryDb($sql);
-
-	$row=@mysqli_fetch_array($result);
-	if (mysqli_num_rows($result) > 0) {
-		$replid = $row['replid'];
-	}
-	?>
-    <table class="tab" id="table" border="1" style="border-collapse:collapse" width="95%" align="center" bordercolor="#000000">
-    <tr height="30">
-    	<td width="20%" class="header" align="center">Logo <?=$title?></td>        
-        <td width="*" class="header" align="center">Header</td>               
-    </tr>
-
-    <tr height="100">
-  	<? 	
-		if ($row['foto'] == "") {
-			$foto = 0;
-	?>	
-    	<td align="center" rowspan="2"> 
-		<font size = "2" color ="red"><b>Klik&nbsp;<a href="JavaScript:tambah_logo()" >		
-    	<font size = "2" color ="green">di sini</font></a>&nbsp;untuk memasukkan logo <?=$title?>.</b></font>
- 	    	  
-        </td>
-	<? } else { 
-			$foto = $row['replid'];
-	?> 
-    	<td align="center"><img src="../library/gambar.php?replid=<?=$replid?>&table=identitas" border="0"/></td>
-    <? } ?>
-    <? 	
-		
-	
-		if ($row['nama'] != "") {	
-	?>
-        <td align="left" valign="top">
-        	<font size="6"><strong><?=$row['nama']?></strong></font><br />
-        	<font size="2"><strong>
-    	<? 	if ($row['alamat2'] <> "" && $row['alamat1'] <> "")
-            	echo "Lokasi 1: ";
-		  	if ($row['alamat1'] != "") 
-				echo $row['alamat1'];
-			if ($row['telp1'] != "" || $row['telp2'] != "") 
-				echo "<br>Telp. ";	
-			if ($row['telp1'] != "" ) 
-				echo $row['telp1'];	
-			if ($row['telp1'] != "" && $row['telp2'] != "") 
-					echo ", ";
-			if ($row['telp2'] != "" ) 
-				echo $row['telp2'];			
-			if ($row['fax1'] != "" ) 
-				echo "&nbsp;&nbsp;Fax. ".$row['fax1']."&nbsp;&nbsp;";
-			
-			if ($row['alamat2'] <> "" && $row['alamat1'] <> "") {
-				echo "<br>";
-            	echo "Lokasi 2: ";
-				echo $row['alamat2'];
-				
-				if ($row['telp3'] != "" || $row['telp4'] != "")
-					echo "<br>Telp. ";	
-				if ($row['telp3'] != "" ) 
-					echo $row['telp3'];
-				if ($row['telp3'] != "" && $row['telp4'] != "") 
-					echo ", ";
-				if ($row['telp4'] != "" ) 
-					echo $row['telp4'];				
-				if ($row['fax2'] != "" ) 
-					echo "&nbsp;&nbsp;Fax. ".$row['fax2'];	
-			}
-			if ($row['situs'] != "" || $row['email'] != "")
-				echo "<br>";
-			if ($row['situs'] != "" ) 
-				echo "Website: ".$row['situs']."&nbsp;&nbsp;";
-			if ($row['email'] != "" ) 
-				echo "Email: ".$row['email'];
-			
-		?>
-            </strong></font>
-        </td>  
-    <? } else { 
-			?>    
-    	<td align="center" rowspan="2"><font size = "2" color ="red"><b>Klik &nbsp;<a href="JavaScript:tambah()" ><font size = "2" color ="green">di sini</font></a>&nbsp;untuk memasukkan data.</b></font>
-        </td> 
-    <? } ?>   
-    </tr>			 
-<?	
-	if (SI_USER_LEVEL() != $SI_USER_STAFF) {  ?>         
-    <tr height="25"> 
-	<? 	if ($row['foto'] !="") {   	?>
-		<td align="center">
-            <a href="JavaScript:tambah_logo()"><img src="../images/ico/ubah.png" border="0" onMouseOver="showhint('Ubah Logo Sekolah!', this, event, '75px')" /></a>&nbsp;
-            <a href="JavaScript:hapus('logo')"><img src="../images/ico/hapus.png" border="0" onMouseOver="showhint('Hapus Logo Sekolah!', this, event, '75px')"/></a>
-        </td>
-     <? } ?>
-     <? if (mysqli_num_rows($result) >  0  && $row['nama'] != "") {	 ?>
-        <td align="center">
-            <a href="JavaScript:edit()"><img src="../images/ico/ubah.png" border="0" onMouseOver="showhint('Ubah Header!', this, event, '85px')" /></a>&nbsp;
-            <a href="JavaScript:hapus('header')"><img src="../images/ico/hapus.png" border="0" onMouseOver="showhint('Hapus Header!', this, event, '85px')"/></a>
-        </td>
-    <? } ?>
-    </tr>
-<?		//}  ?>	
-<? 	 } ?>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identitas Sekolah</title>
     
-	</table>
-    <br /><br />      
-	
-	</td></tr>
-<!-- END TABLE CENTER -->    
-</table>
-</td></tr>
-<!-- END TABLE BACKGROUND IMAGE -->
-</table>    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script type="text/javascript">
+        function tambah_logo() {
+            var departemen = document.getElementById('departemen').value;
+            window.open('logo2.php?departemen='+departemen, 'InputLogoSekolah','width=550,height=305,resizable=1,scrollbars=1');
+        }
 
+        function tambah() {
+            var departemen = document.getElementById('departemen').value;
+            window.open('identitas_add.php?departemen='+departemen, 'InputIdentitasSekolah','width=675,height=430,resizable=1,scrollbars=1');
+        }
+
+        function getfresh() {
+            var departemen = document.getElementById('departemen').value;
+            window.location.href = "identitas.php?departemen="+departemen;
+        }
+
+        function edit() {
+            var departemen = document.getElementById('departemen').value;
+            window.open('identitas_edit.php?departemen='+departemen, 'UbahIdentitasSekolah','width=675,height=430,resizable=1,scrollbars=1');
+        }
+
+        function hapus(bagian) {
+            var departemen = document.getElementById('departemen').value;
+            if (bagian == 'header') {
+                if (confirm("Apakah anda yakin akan menghapus identitas sekolah ini?"))
+                    window.location.href = "identitas.php?op=delheader&departemen="+departemen;
+            } else if (bagian == 'logo') {
+                if (confirm("Apakah anda yakin akan menghapus identitas sekolah ini?"))
+                    window.location.href = "identitas.php?op=dellogo&departemen="+departemen;
+            }
+        }
+
+        function chg_dep() {
+            var departemen = document.getElementById('departemen').value;
+            window.location.href = "identitas.php?departemen="+departemen;
+        }
+
+        function cetak() {
+            var departemen = document.getElementById('departemen').value;
+            window.open('kop_cetak.php?departemen='+departemen, 'CetakHeader','width=790,height=650,resizable=1,scrollbars=1');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 font-sans p-4" onload="document.getElementById('departemen').focus()">
+
+<div class="max-w-7xl mx-auto space-y-4">
+
+    <!-- ========================================================================= -->
+    <!-- BAGIAN 1: HEADER / FILTER                                                 -->
+    <!-- ========================================================================= -->
+    <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-5">
+        
+        <!-- Breadcrumb / Title -->
+        <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+            <h2 class="text-xl font-bold text-emerald-900 flex items-center gap-2">
+                <i class="fas fa-id-badge text-emerald-500"></i> Identitas Sekolah
+            </h2>
+            <div class="text-sm text-gray-500 hidden sm:block">
+                Referensi <i class="fas fa-chevron-right text-xs mx-1"></i> Identitas Sekolah
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-between items-end gap-4">
+            <!-- Departemen -->
+            <div class="w-full md:w-1/3">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Departemen</label>
+                <select name="departemen" id="departemen" onchange="chg_dep()" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                    <option value="yayasan" <?=StringIsSelected($departemen,'yayasan')?>>Umum</option>
+                    <?php
+                    $res = QueryDb("SELECT departemen FROM departemen WHERE aktif=1 ORDER BY urutan");
+                    while ($r = @mysqli_fetch_array($res)) {
+                        if ($departemen == "") $departemen = $r['departemen'];
+                    ?>
+                        <option value="<?=$r['departemen']?>" <?=StringIsSelected($departemen, $r['departemen'])?>><?=$r['departemen']?></option>
+                    <?php } ?>
+                </select>
+            </div>
+
+            <!-- Tombol Cetak -->
+            <div class="w-full md:w-auto">
+                <button onclick="cetak()" class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-print"></i> Cetak KOP Surat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- BAGIAN 2: CONTENT AREA                                                    -->
+    <!-- ========================================================================= -->
+    <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-8">
+        <?php
+        $replid = 0;
+        $sql = "SELECT * FROM identitas WHERE departemen='$departemen' ORDER BY replid DESC LIMIT 1";
+        $result = QueryDb($sql);
+        $row = @mysqli_fetch_array($result);
+        if (mysqli_num_rows($result) > 0) {
+            $replid = $row['replid'];
+        }
+        ?>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Kolom Logo -->
+            <div class="md:col-span-1 flex flex-col items-center gap-4">
+                <h3 class="text-sm font-bold text-emerald-800 uppercase tracking-wider mb-2">Logo <?=$title?></h3>
+                
+                <div class="w-full aspect-square bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden p-4">
+                    <?php if (empty($row['foto'])) { ?>
+                        <div class="text-center p-4">
+                            <i class="fas fa-image text-4xl text-gray-300 mb-2"></i>
+                            <p class="text-xs text-red-500 leading-tight">
+                                <a href="javascript:tambah_logo()" class="text-emerald-600 font-bold hover:underline">Klik di sini</a><br>
+                                untuk memasukkan logo.
+                            </p>
+                        </div>
+                    <?php } else { ?>
+                        <img src="../library/gambar.php?replid=<?=$replid?>&table=identitas" class="max-w-full max-h-full object-contain" alt="Logo Sekolah" />
+                    <?php } ?>
+                </div>
+
+                <?php if (!empty($row['foto']) && SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+                    <div class="flex gap-2">
+                        <button onclick="tambah_logo()" class="bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-bold py-1.5 px-3 rounded-full transition flex items-center gap-1" title="Ubah Logo">
+                            <i class="fas fa-edit"></i> Ubah
+                        </button>
+                        <button onclick="hapus('logo')" class="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold py-1.5 px-3 rounded-full transition flex items-center gap-1" title="Hapus Logo">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </div>
+                <?php } ?>
+            </div>
+
+            <!-- Kolom Header / Detail -->
+            <div class="md:col-span-3">
+                <h3 class="text-sm font-bold text-emerald-800 uppercase tracking-wider mb-4 border-b border-emerald-50 pb-2 text-center md:text-left">Informasi Header</h3>
+                
+                <?php if (!empty($row['nama'])) { ?>
+                    <div class="bg-emerald-50 rounded-xl p-6 border border-emerald-100 space-y-4">
+                        <h1 class="text-2xl md:text-3xl font-extrabold text-emerald-900"><?=$row['nama']?></h1>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                            <!-- Lokasi 1 -->
+                            <div class="space-y-1">
+                                <p class="font-bold text-emerald-800"><i class="fas fa-map-marker-alt w-5 text-emerald-500"></i> Alamat:</p>
+                                <p class="pl-5 leading-relaxed"><?=$row['alamat1']?></p>
+                                <?php if (!empty($row['telp1']) || !empty($row['telp2'])) { ?>
+                                    <p class="pl-5"><span class="font-semibold">Telp.</span> <?=implode(", ", array_filter([$row['telp1'], $row['telp2']]))?></p>
+                                <?php } ?>
+                                <?php if (!empty($row['fax1'])) { ?>
+                                    <p class="pl-5"><span class="font-semibold">Fax.</span> <?=$row['fax1']?></p>
+                                <?php } ?>
+                            </div>
+
+                            <!-- Lokasi 2 -->
+                            <?php if (!empty($row['alamat2'])) { ?>
+                            <div class="space-y-1">
+                                <p class="font-bold text-emerald-800"><i class="fas fa-map-marker-alt w-5 text-emerald-500"></i> Lokasi 2:</p>
+                                <p class="pl-5 leading-relaxed"><?=$row['alamat2']?></p>
+                                <?php if (!empty($row['telp3']) || !empty($row['telp4'])) { ?>
+                                    <p class="pl-5"><span class="font-semibold">Telp.</span> <?=implode(", ", array_filter([$row['telp3'], $row['telp4']]))?></p>
+                                <?php } ?>
+                                <?php if (!empty($row['fax2'])) { ?>
+                                    <p class="pl-5"><span class="font-semibold">Fax.</span> <?=$row['fax2']?></p>
+                                <?php } ?>
+                            </div>
+                            <?php } ?>
+
+                            <!-- Kontak Digital -->
+                            <div class="sm:col-span-2 pt-2 border-t border-emerald-200 mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <?php if (!empty($row['situs'])) { ?>
+                                    <p><i class="fas fa-globe w-5 text-emerald-500"></i> <span class="font-semibold text-emerald-800">Website:</span> <a href="http://<?=$row['situs']?>" target="_blank" class="text-blue-600 hover:underline"><?=$row['situs']?></a></p>
+                                <?php } ?>
+                                <?php if (!empty($row['email'])) { ?>
+                                    <p><i class="fas fa-envelope w-5 text-emerald-500"></i> <span class="font-semibold text-emerald-800">Email:</span> <a href="mailto:<?=$row['email']?>" class="text-blue-600 hover:underline"><?=$row['email']?></a></p>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+                        <div class="mt-4 flex justify-end gap-3">
+                            <button onclick="edit()" class="bg-amber-500 hover:bg-amber-600 text-white font-medium py-1.5 px-4 rounded shadow-sm transition flex items-center gap-2">
+                                <i class="fas fa-edit"></i> Ubah Header
+                            </button>
+                            <button onclick="hapus('header')" class="bg-red-500 hover:bg-red-600 text-white font-medium py-1.5 px-4 rounded shadow-sm transition flex items-center gap-2">
+                                <i class="fas fa-trash-alt"></i> Hapus Header
+                            </button>
+                        </div>
+                    <?php } ?>
+
+                <?php } else { ?>
+                    <!-- Empty State -->
+                    <div class="flex flex-col items-center justify-center p-12 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                        <i class="fas fa-file-invoice text-5xl text-gray-300 mb-4"></i>
+                        <p class="text-lg font-medium text-gray-600">Data identitas belum diisi.</p>
+                        <p class="text-sm text-gray-400 mb-6">Silakan lengkapi informasi nama, alamat, dan kontak sekolah.</p>
+                        <button onclick="tambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-md shadow transition flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Isi Data Baru
+                        </button>
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<?php CloseDb(); ?>
 </body>
 </html>
-<? CloseDb();?>

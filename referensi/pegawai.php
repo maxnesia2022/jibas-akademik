@@ -1,6 +1,7 @@
-<?
- ?>
-<?
+<?php
+// =========================================================================
+// INIT & INCLUDE FILES
+// =========================================================================
 require_once('../include/errorhandler.php');
 require_once('../include/db_functions.php');
 require_once('../include/sessioninfo.php');
@@ -10,33 +11,28 @@ require_once('../cek.php');
 
 OpenDb();
 
-$bagian = "-1";
-if (isset($_REQUEST["bagian"]))
-	$bagian=$_REQUEST["bagian"];
+// =========================================================================
+// PENANGKAPAN PARAMETER
+// =========================================================================
+$bagian = isset($_REQUEST["bagian"]) ? $_REQUEST["bagian"] : "-1";
+$varbaris = isset($_REQUEST['varbaris']) ? $_REQUEST['varbaris'] : 20;
+$page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 0;
+$hal = isset($_REQUEST['hal']) ? $_REQUEST['hal'] : 0;
+$op = isset($_REQUEST['op']) ? $_REQUEST['op'] : '';
+$urut = isset($_REQUEST['urut']) ? $_REQUEST['urut'] : "nama";	
+$urutan = isset($_REQUEST['urutan']) ? $_REQUEST['urutan'] : "ASC";	
 
-$varbaris=20;
-if (isset($_REQUEST['varbaris']))
-	$varbaris = $_REQUEST['varbaris'];
+// =========================================================================
+// PROSES AKSI
+// =========================================================================
 
-$page=0;
-if (isset($_REQUEST['page']))
-	$page = $_REQUEST['page'];
-	
-$hal=0;
-if (isset($_REQUEST['hal']))
-	$hal = $_REQUEST['hal'];
-
-$op = "";
-if (isset($_REQUEST['op']))
-	$op = $_REQUEST['op'];
-
-if ($op == "dw8dxn8w9ms8zs22")
-{
+// Aksi: Ubah Status Aktif
+if ($op == "dw8dxn8w9ms8zs22") {
 	$sql = "UPDATE pegawai SET aktif = '$_REQUEST[newaktif]' WHERE replid = '$_REQUEST[replid]' ";
 	QueryDb($sql);
 }
-else if ($op == "xm8r389xemx23xb2378e23")
-{
+// Aksi: Hapus Pegawai
+else if ($op == "xm8r389xemx23xb2378e23") {
     // -- v31 -- 2025-05-26
     $sql = "DELETE FROM riwayatfoto WHERE nip = (SELECT nip FROM pegawai WHERE replid = '$_REQUEST[replid]')";
     QueryDb($sql);
@@ -46,373 +42,337 @@ else if ($op == "xm8r389xemx23xb2378e23")
     QueryDb($sql);
 
 	$sql = "DELETE FROM pegawai WHERE replid = '$_REQUEST[replid]'";
-	$result = QueryDb($sql);
+	QueryDb($sql);
 
 	$page = 0;
 	$hal = 0;
 }
-
-if ($op == "fdgfde342ft45tgwer34rfwef") {
+// Aksi: Ganti PIN
+else if ($op == "fdgfde342ft45tgwer34rfwef") {
 	$pin = random(5);
 	$sql = "UPDATE pegawai SET `$_REQUEST[field]` = '$pin' WHERE nip = '$_REQUEST[nip]'";
 	QueryDb($sql);
 }
-
-$urut = "nama";	
-if (isset($_REQUEST['urut']))
-	$urut = $_REQUEST['urut'];	
-
-$urutan = "ASC";	
-if (isset($_REQUEST['urutan']))
-	$urutan = $_REQUEST['urutan'];
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<link rel="stylesheet" type="text/css" href="../style/style.css">
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>JIBAS SIMAKA [Kepegawaian]</title>
-<script src="../script/SpryValidationSelect.js" type="text/javascript"></script>
-<link href="../script/SpryValidationSelect.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" type="text/css" href="../style/tooltips.css">
-<script language="javascript" src="../script/tooltips.js"></script>
-<script language="javascript" src="../script/tables.js"></script>
-<script language="javascript" src="../script/tools.js"></script>
-<script language="javascript">
-function refresh(){
-	var bagian=document.getElementById("bagian").value;
-	//document.location.href="pegawai.php?bagian="+bagian;
-	document.location.href = "pegawai.php?bagian="+bagian+"&page=<?=$page?>&hal=<?=$hal?>&varbaris=<?=$varbaris?>&urut=<?=$urut?>&urutan=<?=$urutan?>"
-}
 
-function change_bagian(){
-	var bagian=document.getElementById("bagian").value;
-	document.location.href="pegawai.php?bagian="+bagian+"&varbaris=<?=$varbaris?>";
-}
-
-function setaktif(replid, aktif) {
-	var bagian=document.getElementById("bagian").value;
-	var msg;
-	var newaktif;
-	
-	if (aktif == 1) {
-		msg = "Apakah anda yakin akan mengubah status pegawai ini menjadi TIDAK AKTIF?";
-		newaktif = 0;
-	} else	{	
-		msg = "Apakah anda yakin akan mengubah status pegawai ini menjadi AKTIF?";
-		newaktif = 1;
-	}
-	
-	if (confirm(msg)) 
-		document.location.href = "pegawai.php?op=dw8dxn8w9ms8zs22&replid="+replid+"&newaktif="+newaktif+"&bagian="+bagian+"&page=<?=$page?>&hal=<?=$hal?>&varbaris=<?=$varbaris?>&urut=<?=$urut?>&urutan=<?=$urutan?>";
-	
-}
-
-function hapus(replid) {
-	var bagian=document.getElementById("bagian").value;
-	if (confirm("Apakah anda yakin akan menghapus pegawai ini?"))
-		document.location.href = "pegawai.php?op=xm8r389xemx23xb2378e23&replid="+replid+"&bagian="+bagian+"&page=<?=$page?>&hal=<?=$hal?>&varbaris=<?=$varbaris?>&urut=<?=$urut?>&urutan=<?=$urutan?>";
-}
-
-function change_urut(urut,urutan) {	
-	var bagian=document.getElementById("bagian").value;
-	var varbaris=document.getElementById("varbaris").value;
-	
-	if (urutan =="ASC"){
-		urutan="DESC"
-	} else {
-		urutan="ASC"
-	}
-	
-	document.location.href="pegawai.php?bagian="+bagian+"&urut="+urut+"&urutan="+urutan+"&page=<?=$page?>&hal=<?=$hal?>&varbaris="+varbaris;
-}
-
-function tambah() {
-	var bagian=document.getElementById("bagian").value;
-	newWindow('pegawai_add.php?bagian='+bagian, 'TambahPegawai','500','650','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function lihat(replid) {	
-	newWindow('pegawai_view.php?replid='+replid, 'LihatPegawai','790','610','resizable=0,scrollbars=1,status=0,toolbar=0')
-}
-
-function edit(replid) {
-	newWindow('pegawai_edit.php?replid='+replid, 'UbahPegawai','535','650','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function cetak(urut,urutan) {
-	var bagian=document.getElementById("bagian").value;
-	var total=document.getElementById("total").value;
-	
-	newWindow('pegawai_cetak.php?bagian='+bagian+'&urut='+urut+'&urutan='+urutan+'&varbaris=<?=$varbaris?>&page=<?=$page?>&total='+total, 'CetakPegawai','790','650','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function cetak_detail(replid) {
-	newWindow('pegawai_cetak_detail.php?replid='+replid, 'CetakDetailCalonSiswa','790','650','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function change_page(page) {
-	var bagian=document.getElementById("bagian").value;
-	var varbaris=document.getElementById("varbaris").value;
-	document.location.href="pegawai.php?bagian="+bagian+"&page="+page+"&hal="+page+"&urut=<?=$urut?>&urutan=<?=$urutan?>&varbaris="+varbaris;
-}
-
-function change_hal() {
-	var bagian = document.getElementById("bagian").value;
-	var hal = document.getElementById("hal").value;
-	var varbaris=document.getElementById("varbaris").value;
-	document.location.href="pegawai.php?bagian="+bagian+"&page="+hal+"&hal="+hal+"&urut=<?=$urut?>&urutan=<?=$urutan?>&varbaris="+varbaris;
-}
-
-function change_baris() {
-	var bagian = document.getElementById("bagian").value;
-	var varbaris=document.getElementById("varbaris").value;
-	document.location.href="pegawai.php?bagian="+bagian+"&urut=<?=$urut?>&urutan=<?=$urutan?>&varbaris="+varbaris;
-}
-
-function gantipin(field, nip) {
-	if (confirm("Apakah anda yakin akan mengganti PIN ini?")) {
-		var bagian = document.getElementById("bagian").value;
-		var hal = document.getElementById("hal").value;
-		var varbaris=document.getElementById("varbaris").value;
-		//document.location.href = "pegawai.php?op=fdgfde342ft45tgwer34rfwef&bagian="+bagian+"&urut=<?=$urut?>&urutan=<?=$urutan?>&field="+field+"&nip="+nip+"&hal="+hal+"&varbaris="+varbaris;
-		document.location.href = "pegawai.php?op=fdgfde342ft45tgwer34rfwef&bagian="+bagian+"&page=<?=$page?>&hal=<?=$hal?>&varbaris=<?=$varbaris?>&urut=<?=$urut?>&urutan=<?=$urutan?>&field="+field+"&nip="+nip;
-	}	
-}
-
-function exel()
-{
-	newWindow('pegawai_excel.php', 'ExcelPegawai','790','650','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-</script>
-
-</head>
-<body onload="document.getElementById('bagian').focus()">
-<table border="0" width="100%" height="100%">
-<!-- TABLE BACKGROUND IMAGE -->
-<tr><td align="center" valign="top" background="../images/ico/b_pegawai.png" style="margin:0;padding:0;background-repeat:no-repeat;background-attachment:fixed;margin-left:10">
-
-<table border="0" width="100%" align="center">
-<!-- TABLE CENTER -->
-<tr>
-  	<td align="left" valign="top">
-
-	<table border="0"width="95%" align="center">
-    <tr>
-        <td align="right"><font size="4" face="Verdana, Arial, Helvetica, sans-serif" style="background-color:#ffcc66">&nbsp;</font>&nbsp;<font size="4" face="Verdana, Arial, Helvetica, sans-serif" color="Gray">Kepegawaian</font></td>
-    </tr>
-    <tr>
-        <td align="right"><a href="../referensi.php" target="content">
-          <font size="1" color="#000000"><b>Referensi</b></font></a>&nbsp>&nbsp <font size="1" color="#000000"><b>Kepegawaian</b></font>        </td>
-    </tr>
-    <tr>
-      <td align="left">&nbsp;</td>
-      </tr>
-	</table>
-	<br /><br />
-  
-    <table border="0" cellpadding="0" cellspacing="0" width="95%" align="center" style="padding-left:100px">
-    <!-- TABLE CONTENT -->
-    <tr>
-      	<td width="38%" align="right">
-      	<strong>Bagian&nbsp;</strong>
-      	<select name="bagian" id="bagian" onchange="change_bagian()" >
-        <option value="-1" <?=StringIsSelected($row_bag['bagian'], $bagian)?>>Semua Bagian </option>
-	<?
-        $sql_bag = "SELECT bagian FROM bagianpegawai ORDER BY urutan";    
-		$result_bag = QueryDB($sql_bag);
-		while ($row_bag = @mysqli_fetch_array($result_bag)){
-	?>
-        <option value="<?=$row_bag['bagian']?>" <?=StringIsSelected($row_bag['bagian'], $bagian)?>>
-        <?=$row_bag['bagian']?>
-        </option>
-    <?
-		}
-	?>
-    	</select></td>  
-	<?
-		if ($bagian != "-1"){
-			$sql_tot = "SELECT * FROM pegawai WHERE bagian='$bagian' ORDER BY replid";
-			$result_tot = QueryDb($sql_tot);
-			$total = ceil(mysqli_num_rows($result_tot)/(int)$varbaris);
-			$jumlah = mysqli_num_rows($result_tot);
-						
-			$sql_pegawai="SELECT * FROM pegawai WHERE bagian='$bagian' ORDER BY $urut $urutan LIMIT ".(int)$page*(int)$varbaris.",$varbaris";
-		} else {
-			$sql_tot = "SELECT * FROM pegawai ORDER BY replid";
-			$result_tot = QueryDb($sql_tot);
-			$total = ceil(mysqli_num_rows($result_tot)/(int)$varbaris);
-			$jumlah = mysqli_num_rows($result_tot);
-			
-			$sql_pegawai="SELECT * FROM pegawai ORDER BY $urut $urutan LIMIT ".(int)$page*(int)$varbaris.",$varbaris";
-		}
-		
-		$akhir = ceil($jumlah/5)*5;
-		$result_pegawai=QueryDb($sql_pegawai);
-		if (@mysqli_num_rows($result_pegawai) > 0){ ?>
-		<input type="hidden" name="total" id="total" value="<?=$total?>"/>
-    	<td width="60%" align="right">
-        	<a href="#" onClick="refresh()"><img src="../images/ico/refresh.png" border="0" onMouseOver="showhint('Refresh!', this, event, '50px')"/>&nbsp;Refresh</a>&nbsp;&nbsp;
-          
-		    <a href="#" onClick="JavaScript:exel()"><img src="../images/ico/excel.png" border="0" onMouseOver="showhint('Excel!', this, event, '80px')"/>&nbsp;Excel</a>&nbsp;&nbsp;
-            <a href="JavaScript:cetak('<?=$urut?>','<?=$urutan?>')"><img src="../images/ico/print.png" border="0" onMouseOver="showhint('Cetak!', this, event, '50px')" />&nbsp;Cetak</a>&nbsp;&nbsp;
-     
-     	<?	if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
-        	<a href="JavaScript:tambah()"><img src="../images/ico/tambah.png" border="0" onMouseOver="showhint('Tambah!', this, event, '50px')" />&nbsp;Tambah Pegawai</a>
-        <?	} ?>        </td>
-    </tr>
-    </table>
-    <br />
-    <table class="tab" id="table" border="1" style="border-collapse:collapse" width="95%" align="center" bordercolor="#000000" />
-    <tr height="30" align="center" class="header">
-    	<td width="20" align="center" background="../style/formbg2.gif" >No</td>
-        <td width="80" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('nip','<?=$urutan?>')">N I P <?=change_urut('nip',$urut,$urutan)?></td>
-        <td width="*" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('nama','<?=$urutan?>')">Nama <?=change_urut('nama',$urut,$urutan)?></td>
-        <td width="250" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('tmplahir','<?=$urutan?>')">Tempat Tanggal Lahir <?=change_urut('tmplahir',$urut,$urutan)?></td>
-        <td width="103" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('pinpegawai','<?=$urutan?>')">PIN&nbsp;Pegawai&nbsp;<?=change_urut('pinpegawai',$urut,$urutan)?></td>
-        <td width="65" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('aktif','<?=$urutan?>')">Status <?=change_urut('aktif',$urut,$urutan)?></td>
-        <td width="115">&nbsp;</td>
-    </tr>
-	<? 	
-	if ($page==0)
-		$cnt = 1;
-	else 
-		$cnt = (int)$page*(int)$varbaris+1;
-	
-	while ($row_pegawai = mysqli_fetch_array($result_pegawai)) { ?>
-    <tr height="25">
-    	<td width="20" align="center"><?=$cnt ?></td>
-        <td align="center"><?=$row_pegawai['nip'] ?></td>
-        <td><?=$row_pegawai['nama'] . " " . $row['nama'] ?></td>
-        <td><?=$row_pegawai['tmplahir'] ?>, <?=format_tgl($row_pegawai['tgllahir']) ?></td>
-        <td width="103" align="center"><?=$row_pegawai['pinpegawai'] ?>&nbsp;
-        <? if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
-        <a href="JavaScript:gantipin('pinpegawai','<?=$row_pegawai['nip']?>')" ><img src="../images/ico/refresh.png" border="0" onMouseOver="showhint('Ganti PIN!', this, event, '70px')"/></a>
-        <? } ?>        </td>    
-        <td align="center">
-        
-<?		if (SI_USER_LEVEL() == $SI_USER_STAFF) {  
-			if ($row_pegawai['aktif'] == 1) { ?> 
-            	<img src="../images/ico/aktif.png" border="0" onMouseOver="showhint('Status Aktif!', this, event, '80px')"/>
-<?			} else { ?>                
-				<img src="../images/ico/nonaktif.png" border="0" onMouseOver="showhint('Status Tidak Aktif!', this, event, '80px')"/>
-<?			}
-		} else { 
-			if ($row_pegawai['aktif'] == 1) { ?>
-				<a href="JavaScript:setaktif(<?=$row_pegawai['replid'] ?>, <?=$row_pegawai['aktif'] ?>)"><img src="../images/ico/aktif.png" border="0" onMouseOver="showhint('Status Aktif!', this, event, '80px')"/></a>
-<?			} else { ?>
-				<a href="JavaScript:setaktif(<?=$row_pegawai['replid'] ?>, <?=$row_pegawai['aktif'] ?>)"><img src="../images/ico/nonaktif.png" border="0" onMouseOver="showhint('Status Tidak Aktif!', this, event, '80px')"/></a>
-<?			} //end if
-		} //end if ?>        </td>
-        <td align="center"><a href="JavaScript:lihat(<?=$row_pegawai['replid'] ?>)"><img src="../images/ico/lihat.png" border="0" onMouseOver="showhint('Detail Data Pegawai!', this, event, '50x')"/></a>&nbsp;
-        
-<?		if (SI_USER_LEVEL() != $SI_USER_STAFF) {  ?> 
-			<a href="JavaScript:cetak_detail(<?=$row_pegawai['replid'] ?>)" onMouseOver="showhint('Cetak Detail Data Pegawai!', this, event, '100px')"><img src="../images/ico/print.png" border="0" /></a>&nbsp; 
-            <a href="JavaScript:edit(<?=$row_pegawai['replid'] ?>)"><img src="../images/ico/ubah.png" border="0" onMouseOver="showhint('Ubah Data Pegawai!', this, event, '80px')" /></a>&nbsp;
-            <a href="JavaScript:hapus(<?=$row_pegawai['replid'] ?>)"><img src="../images/ico/hapus.png" border="0" onMouseOver="showhint('Hapus Data Pegawai!', this, event, '80px')"/></a>
-<?		} ?>        </td>
-    </tr>
-<?	$cnt++; } 
-CloseDb(); ?>	
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kepegawaian</title>
     
-    <!-- END TABLE CONTENT -->
-    </table>
-    <script language='JavaScript'>
-	    Tables('table', 1, 0);
-    </script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script type="text/javascript">
+        var base_url = "pegawai.php";
 
-    <?	if ($page==0){ 
-		$disback="style='visibility:hidden;'";
-		$disnext="style='visibility:visible;'";
-		}
-		if ($page<$total && $page>0){
-		$disback="style='visibility:visible;'";
-		$disnext="style='visibility:visible;'";
-		}
-		if ($page==$total-1 && $page>0){
-		$disback="style='visibility:visible;'";
-		$disnext="style='visibility:hidden;'";
-		}
-		if ($page==$total-1 && $page==0){
-		$disback="style='visibility:hidden;'";
-		$disnext="style='visibility:hidden;'";
-		}
-	?>
-    </td>
-</tr> 
-<tr>
-    <td>
-    <table border="0"width="95%" align="center"cellpadding="0" cellspacing="0">	
-    <tr>
-       	<td width="30%" align="left">Halaman
-        <select name="hal" id="hal" onChange="change_hal()">
-        <?	for ($m=0; $m<$total; $m++) {?>
-             <option value="<?=$m ?>" <?=IntIsSelected($hal,$m) ?>><?=$m+1 ?></option>
-        <? } ?>
-     	</select>
-	  	dari <?=$total?> halaman
-		
-		<? 
-     // Navigasi halaman berikutnya dan sebelumnya
+        function refresh() {
+            var bagian = document.getElementById("bagian").value;
+            window.location.href = base_url + "?bagian=" + encodeURIComponent(bagian) + "&page=<?=$page?>&hal=<?=$hal?>&varbaris=<?=$varbaris?>&urut=<?=$urut?>&urutan=<?=$urutan?>";
+        }
+
+        function change_bagian() {
+            var bagian = document.getElementById("bagian").value;
+            window.location.href = base_url + "?bagian=" + encodeURIComponent(bagian) + "&varbaris=<?=$varbaris?>";
+        }
+
+        function setaktif(replid, aktif) {
+            var bagian = document.getElementById("bagian").value;
+            var msg, newaktif;
+            
+            if (aktif == 1) {
+                msg = "Apakah anda yakin akan mengubah status pegawai ini menjadi TIDAK AKTIF?";
+                newaktif = 0;
+            } else {	
+                msg = "Apakah anda yakin akan mengubah status pegawai ini menjadi AKTIF?";
+                newaktif = 1;
+            }
+            
+            if (confirm(msg)) 
+                window.location.href = base_url + "?op=dw8dxn8w9ms8zs22&replid="+replid+"&newaktif="+newaktif+"&bagian="+encodeURIComponent(bagian)+"&page=<?=$page?>&hal=<?=$hal?>&varbaris=<?=$varbaris?>&urut=<?=$urut?>&urutan=<?=$urutan?>";
+        }
+
+        function hapus(replid) {
+            var bagian = document.getElementById("bagian").value;
+            if (confirm("Apakah anda yakin akan menghapus pegawai ini?"))
+                window.location.href = base_url + "?op=xm8r389xemx23xb2378e23&replid="+replid+"&bagian="+encodeURIComponent(bagian)+"&page=<?=$page?>&hal=<?=$hal?>&varbaris=<?=$varbaris?>&urut=<?=$urut?>&urutan=<?=$urutan?>";
+        }
+
+        function change_urut(urut_baru, urutan_lama) {	
+            var bagian = document.getElementById("bagian").value;
+            var varbaris = document.getElementById("varbaris").value;
+            var urutan_baru = (urutan_lama == "ASC") ? "DESC" : "ASC";
+            
+            window.location.href = base_url + "?bagian="+encodeURIComponent(bagian)+"&urut="+urut_baru+"&urutan="+urutan_baru+"&page=<?=$page?>&hal=<?=$hal?>&varbaris="+varbaris;
+        }
+
+        function tambah() {
+            var bagian = document.getElementById("bagian").value;
+            window.open('pegawai_add.php?bagian='+encodeURIComponent(bagian), 'TambahPegawai', 'width=500,height=650,resizable=1,scrollbars=1');
+        }
+
+        function lihat(replid) {	
+            window.open('pegawai_view.php?replid='+replid, 'LihatPegawai', 'width=790,height=610,resizable=0,scrollbars=1');
+        }
+
+        function edit(replid) {
+            window.open('pegawai_edit.php?replid='+replid, 'UbahPegawai', 'width=535,height=650,resizable=1,scrollbars=1');
+        }
+
+        function cetak() {
+            var bagian = document.getElementById("bagian").value;
+            var total = document.getElementById("total").value;
+            window.open('pegawai_cetak.php?bagian='+encodeURIComponent(bagian)+'&urut=<?=$urut?>&urutan=<?=$urutan?>&varbaris=<?=$varbaris?>&page=<?=$page?>&total='+total, 'CetakPegawai', 'width=790,height=650,resizable=1,scrollbars=1');
+        }
+
+        function cetak_detail(replid) {
+            window.open('pegawai_cetak_detail.php?replid='+replid, 'CetakDetailPegawai', 'width=790,height=650,resizable=1,scrollbars=1');
+        }
+
+        function change_hal() {
+            var bagian = document.getElementById("bagian").value;
+            var hal = document.getElementById("hal").value;
+            var varbaris = document.getElementById("varbaris").value;
+            window.location.href = base_url + "?bagian="+encodeURIComponent(bagian)+"&page="+hal+"&hal="+hal+"&urut=<?=$urut?>&urutan=<?=$urutan?>&varbaris="+varbaris;
+        }
+
+        function change_baris() {
+            var bagian = document.getElementById("bagian").value;
+            var varbaris = document.getElementById("varbaris").value;
+            window.location.href = base_url + "?bagian="+encodeURIComponent(bagian)+"&urut=<?=$urut?>&urutan=<?=$urutan?>&varbaris="+varbaris;
+        }
+
+        function gantipin(field, nip) {
+            if (confirm("Apakah anda yakin akan mengganti PIN ini?")) {
+                var bagian = document.getElementById("bagian").value;
+                var hal = document.getElementById("hal").value;
+                var varbaris = document.getElementById("varbaris").value;
+                window.location.href = base_url + "?op=fdgfde342ft45tgwer34rfwef&bagian="+encodeURIComponent(bagian)+"&page=<?=$page?>&hal="+hal+"&varbaris="+varbaris+"&urut=<?=$urut?>&urutan=<?=$urutan?>&field="+field+"&nip="+nip;
+            }	
+        }
+
+        function exel() {
+            window.open('pegawai_excel.php', 'ExcelPegawai', 'width=790,height=650,resizable=1,scrollbars=1');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 font-sans p-4" onload="document.getElementById('bagian').focus()">
+
+<div class="max-w-7xl mx-auto space-y-4">
+
+    <!-- ========================================================================= -->
+    <!-- BAGIAN 1: HEADER / FILTER                                                 -->
+    <!-- ========================================================================= -->
+    <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-5">
+        
+        <!-- Breadcrumb / Title -->
+        <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+            <h2 class="text-xl font-bold text-emerald-900 flex items-center gap-2">
+                <i class="fas fa-user-tie text-emerald-500"></i> Kepegawaian
+            </h2>
+            <div class="text-sm text-gray-500 hidden sm:block">
+                Referensi <i class="fas fa-chevron-right text-xs mx-1"></i> Kepegawaian
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-between items-end gap-4">
+            <!-- Bagian Filter -->
+            <div class="w-full md:w-1/3">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Bagian</label>
+                <select name="bagian" id="bagian" onchange="change_bagian()" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                    <option value="-1" <?=($bagian == "-1") ? "selected" : ""?>>Semua Bagian</option>
+                    <?php
+                    $sql_bag = "SELECT bagian FROM bagianpegawai ORDER BY urutan";    
+                    $result_bag = QueryDB($sql_bag);
+                    while ($row_bag = @mysqli_fetch_array($result_bag)) {
+                    ?>
+                        <option value="<?=$row_bag['bagian']?>" <?=StringIsSelected($row_bag['bagian'], $bagian)?>>
+                            <?=$row_bag['bagian']?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                <button onclick="refresh()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-1.5 px-3 rounded shadow-sm border border-gray-300 transition flex items-center gap-2">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button onclick="exel()" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-1.5 px-3 rounded shadow-sm transition flex items-center gap-2">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button onclick="cetak()" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1.5 px-3 rounded shadow-sm transition flex items-center gap-2">
+                    <i class="fas fa-print"></i> Cetak
+                </button>
+                <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+                <button onclick="tambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium py-1.5 px-3 rounded shadow-sm transition flex items-center gap-2">
+                    <i class="fas fa-plus"></i> Tambah Pegawai
+                </button>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- BAGIAN 2: CONTENT AREA                                                    -->
+    <!-- ========================================================================= -->
+    <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-5">
+        <?php
+        $where_bagian = ($bagian != "-1") ? "WHERE bagian='$bagian'" : "";
+        
+        // Query Total
+        $sql_tot = "SELECT COUNT(*) FROM pegawai $where_bagian";
+        $result_tot = QueryDb($sql_tot);
+        $row_tot = mysqli_fetch_row($result_tot);
+        $jumlah = $row_tot[0];
+        $total = ceil($jumlah / (int)$varbaris);
+
+        // Query Data
+        $sql_pegawai = "SELECT * FROM pegawai $where_bagian ORDER BY $urut $urutan LIMIT ".(int)$page*(int)$varbaris.",$varbaris";
+        $result_pegawai = QueryDb($sql_pegawai);
+
+        if ($jumlah > 0) {
         ?>
-        </td>
-    	<!--td align="center">
-    <input <?=$disback?> type="button" class="but" name="back" value=" << " onClick="change_page('<?=(int)$page-1?>')" onMouseOver="showhint('Sebelumnya', this, event, '75px')">
-		<?
-		/*for($a=0;$a<$total;$a++){
-			if ($page==$a){
-				echo "<font face='verdana' color='red'><strong>".($a+1)."</strong></font> "; 
-			} else { 
-				echo "<a href='#' onClick=\"change_page('".$a."')\">".($a+1)."</a> "; 
-			}
-				 
-	    }*/
-		?>
-	     <input <?=$disnext?> type="button" class="but" name="next" value=" >> " onClick="change_page('<?=(int)$page+1?>')" onMouseOver="showhint('Berikutnya', this, event, '75px')">
- 		</td-->
-        <td width="30%" align="right">Jumlah baris per halaman
-      	<select name="varbaris" id="varbaris" onChange="change_baris()">
-        <? 	for ($m=10; $m <= 100; $m=$m+10) { ?>
-        	<option value="<?=$m ?>" <?=IntIsSelected($varbaris,$m) ?>><?=$m ?></option>
-        <? 	} ?>
-       
-      	</select></td>
-    </tr>
-    </table>
-</td></tr>
-<!-- END TABLE CENTER -->    
-</table>
-	
-<?	} else { ?>
-<td width = "60%"></td>
-</tr>
-</table>
-<table width="95%" border="0" align="center">          
-<tr>
-	<td width="19%"></td>
-	<td><hr style="border-style:dotted" color="#000000"/></td>
-</tr>
-</table>
-<table width="100%" border="0" align="center">          
-<tr>
-	<td align="center" valign="middle" height="200">
-    	<font size = "2" color ="red"><b>Tidak ditemukan adanya data. 
-        <? if (SI_USER_LEVEL() != $SI_USER_STAFF ) { ?>
-        <br />Klik &nbsp;<a href="JavaScript:tambah()" ><font size = "2" color ="green">di sini</font></a>&nbsp;untuk mengisi data baru. 
-        <? } ?>
-        </b></font>
-	</td>
-</tr>
-</table>  
-<? } ?> 
-</td></tr>
-<!-- END TABLE BACKGROUND IMAGE -->
-</table>   
+            <input type="hidden" name="total" id="total" value="<?=$total?>"/>
+            
+            <div class="text-sm text-gray-600 mb-4">
+                Menampilkan <span class="font-bold text-gray-900"><?=$jumlah?></span> pegawai.
+            </div>
+
+            <!-- Table Data -->
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-emerald-50">
+                        <tr>        
+                            <th class="px-4 py-3 text-center text-xs font-bold text-emerald-800 uppercase tracking-wider w-12 text-center">No</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-emerald-800 uppercase tracking-wider cursor-pointer hover:bg-emerald-100 transition" onClick="change_urut('nip','<?=$urutan?>')">
+                                NIP <i class="fas fa-sort text-emerald-300 ml-1"></i>
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-emerald-800 uppercase tracking-wider cursor-pointer hover:bg-emerald-100 transition" onClick="change_urut('nama','<?=$urutan?>')">
+                                Nama <i class="fas fa-sort text-emerald-300 ml-1"></i>
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-emerald-800 uppercase tracking-wider cursor-pointer hover:bg-emerald-100 transition" onClick="change_urut('tmplahir','<?=$urutan?>')">
+                                Tempat, Tanggal Lahir <i class="fas fa-sort text-emerald-300 ml-1"></i>
+                            </th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-emerald-800 uppercase tracking-wider cursor-pointer hover:bg-emerald-100 transition" onClick="change_urut('pinpegawai','<?=$urutan?>')">
+                                PIN <i class="fas fa-sort text-emerald-300 ml-1"></i>
+                            </th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-emerald-800 uppercase tracking-wider cursor-pointer hover:bg-emerald-100 transition" onClick="change_urut('aktif','<?=$urutan?>')">
+                                Status <i class="fas fa-sort text-emerald-300 ml-1"></i>
+                            </th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-emerald-800 uppercase tracking-wider w-36">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php 
+                        $cnt = ($page == 0) ? 1 : ((int)$page * (int)$varbaris + 1);
+                        while ($row_pegawai = mysqli_fetch_array($result_pegawai)) {
+                        ?>    
+                        <tr class="hover:bg-emerald-50 transition duration-150">                    
+                            <td class="px-4 py-2 text-center text-gray-500"><?=$cnt?></td>
+                            <td class="px-4 py-2 text-gray-800 font-medium"><?=$row_pegawai['nip']?></td>
+                            <td class="px-4 py-2 text-gray-900 font-bold"><?=$row_pegawai['nama']?></td>
+                            <td class="px-4 py-2 text-gray-600">
+                                <?=$row_pegawai['tmplahir']?>, <?=format_tgl($row_pegawai['tgllahir'])?>
+                            </td>
+                            <td class="px-4 py-2 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <span class="font-mono text-emerald-700"><?=$row_pegawai['pinpegawai']?></span>
+                                    <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+                                        <button onclick="gantipin('pinpegawai','<?=$row_pegawai['nip']?>')" class="text-gray-400 hover:text-emerald-600 transition" title="Ganti PIN">
+                                            <i class="fas fa-sync-alt text-xs"></i>
+                                        </button>
+                                    <?php } ?>
+                                </div>
+                            </td>
+                            
+                            <!-- Kolom Status -->
+                            <td class="px-4 py-2 text-center">
+                                <?php 
+                                if (SI_USER_LEVEL() == $SI_USER_STAFF) {  
+                                    if ($row_pegawai['aktif'] == 1) {
+                                        echo '<span class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-emerald-100 text-emerald-800">Aktif</span>';
+                                    } else {
+                                        echo '<span class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-red-100 text-red-800">Tidak Aktif</span>';
+                                    }
+                                } else { 
+                                    if ($row_pegawai['aktif'] == 1) { ?>
+                                        <button onclick="setaktif(<?=$row_pegawai['replid']?>, <?=$row_pegawai['aktif']?>)" class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition" title="Klik untuk Non-Aktifkan">Aktif</button>
+                                    <?php } else { ?>
+                                        <button onclick="setaktif(<?=$row_pegawai['replid']?>, <?=$row_pegawai['aktif']?>)" class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition" title="Klik untuk Aktifkan">Tidak Aktif</button>
+                                    <?php }
+                                } ?>            
+                            </td>
+                            
+                            <!-- Kolom Aksi -->
+                            <td class="px-4 py-2 text-center flex justify-center gap-3">
+                                <button onclick="lihat(<?=$row_pegawai['replid']?>)" class="text-blue-500 hover:text-blue-700 transition" title="Detail Data Pegawai">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>                
+                                    <button onclick="cetak_detail(<?=$row_pegawai['replid']?>)" class="text-gray-500 hover:text-gray-700 transition" title="Cetak Detail">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                    <button onclick="edit(<?=$row_pegawai['replid']?>)" class="text-amber-500 hover:text-amber-700 transition" title="Ubah Data">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="hapus(<?=$row_pegawai['replid']?>)" class="text-red-500 hover:text-red-700 transition" title="Hapus Data">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                <?php } ?>
+                            </td>
+                        </tr>
+                        <?php $cnt++; } ?>            
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Area -->
+            <div class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-200">
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-600">Halaman</span>
+                    <select name="hal" id="hal" onChange="change_hal()" class="border border-gray-300 rounded px-2 py-1 bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <?php for ($m=0; $m<$total; $m++) {?>
+                        <option value="<?=$m?>" <?=IntIsSelected($hal,$m)?>><?=$m+1?></option>
+                    <?php } ?>
+                    </select>
+                    <span class="text-gray-600">dari <?=$total?> halaman</span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-600">Tampilkan</span>
+                    <select name="varbaris" id="varbaris" onChange="change_baris()" class="border border-gray-300 rounded px-2 py-1 bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <?php for ($m=10; $m <= 100; $m=$m+10) { ?>
+                        <option value="<?=$m?>" <?=IntIsSelected($varbaris,$m)?>><?=$m?></option>
+                    <?php } ?>
+                    </select>
+                    <span class="text-gray-600">baris per halaman</span>
+                </div>
+            </div>
+
+        <?php } else { ?>
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center p-16 text-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <i class="fas fa-users-slash text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">Data Tidak Ditemukan</h3>
+                <p class="text-gray-500 max-w-md mb-6">
+                    Tidak ditemukan data pegawai untuk kriteria bagian ini.
+                </p>
+                <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+                <button onclick="tambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded shadow transition flex items-center gap-2">
+                    <i class="fas fa-plus"></i> Isi Data Baru
+                </button>
+                <?php } ?>
+            </div>
+        <?php } ?>
+    </div>
+
+</div>
+
+<?php CloseDb(); ?>
 </body>
 </html>
-<script language="javascript">
-	var spryselect1 = new Spry.Widget.ValidationSelect("bagian");
-	var spryselect1 = new Spry.Widget.ValidationSelect("hal");
-	var spryselect1 = new Spry.Widget.ValidationSelect("varbaris");
-</script>

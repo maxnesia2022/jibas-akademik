@@ -1,7 +1,8 @@
-<?
- ?>
-<?
-require_once('../include/sessioninfo.php');
+<?php
+// =========================================================================
+// INIT & INCLUDE FILES
+// =========================================================================
+require_once('../include/errorhandler.php');
 require_once('../include/db_functions.php');
 require_once('../include/sessioninfo.php');
 require_once('../include/common.php');
@@ -10,197 +11,204 @@ require_once('../cek.php');
 
 OpenDb();
 
-$op = "";
-if (isset($_REQUEST['op']))
-	$op = $_REQUEST['op'];
+// =========================================================================
+// PROSES AKSI
+// =========================================================================
+$op = isset($_REQUEST['op']) ? $_REQUEST['op'] : '';
 
-if ($op == "dw8dxn8w9ms8zs22") 
-{
+// Aksi: Ubah Status Aktif
+if ($op == "dw8dxn8w9ms8zs22") {
 	$sql = "UPDATE departemen SET aktif = '$_REQUEST[newaktif]' WHERE replid = '$_REQUEST[replid]' ";
 	QueryDb($sql);
 } 
 
-if ($op == "xm8r389xemx23xb2378e23") 
-{
+// Aksi: Hapus Departemen
+if ($op == "xm8r389xemx23xb2378e23") {
 	$sql = "DELETE FROM departemen WHERE replid = '$_REQUEST[replid]'";
-	$result = QueryDb($sql);
+	QueryDb($sql);
 }
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!DOCTYPE html>
+<html lang="id">
 <head>
-<link rel="stylesheet" type="text/css" href="../style/style.css">
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Untitled Document</title>
-<link rel="stylesheet" type="text/css" href="../style/tooltips.css">
-<script language="javascript" src="../script/tooltips.js"></script>
-<script language="javascript" src="../script/tables.js"></script>
-<script language="javascript" src="../script/tools.js"></script>
-<script language="javascript">
-function tambah() 
-{
-	newWindow('departemen_add.php', 'TambahDepartemen','505','308','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function refresh() 
-{
-	document.location.href = "departemen.php";
-}
-
-function setaktif(replid, aktif) 
-{
-	var msg;
-	var newaktif;
-	
-	if (aktif == 1) 
-	{
-		msg = "Apakah anda yakin akan mengubah departemen ini menjadi TIDAK AKTIF?";
-		newaktif = 0;
-	} 
-	else	
-	{	
-		msg = "Apakah anda yakin akan mengubah departemen ini menjadi AKTIF?";
-		newaktif = 1;
-	}
-	
-	if (confirm(msg)) 
-		document.location.href = "departemen.php?op=dw8dxn8w9ms8zs22&replid="+replid+"&newaktif="+newaktif;
-}
-
-function edit(replid) 
-{
-	newWindow('departemen_edit.php?replid='+replid, 'UbahDepartemen','505','308','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-
-function hapus(replid) 
-{
-	if (confirm("Apakah anda yakin akan menghapus departemen ini?"))
-		document.location.href = "departemen.php?op=xm8r389xemx23xb2378e23&replid="+replid;
-}
-
-function cetak() 
-{
-	newWindow('departemen_cetak.php', 'CetakDepartemen','790','650','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-</script>
-</head>
-
-<body>
-
-<table border="0" width="100%" height="100%">
-<!-- TABLE BACKGROUND IMAGE -->
-<tr><td align="center" valign="top" background="../images/b_departemen.png" style="margin:0;padding:0;background-repeat:no-repeat;">
-
-<table border="0" width="100%" align="center">
-<!-- TABLE CENTER -->
-<tr height="300">
-  <td align="left" valign="top">
-
-	<table border="0"width="95%" align="center">
-    <tr>
-        <td align="right"><font size="4" face="Verdana, Arial, Helvetica, sans-serif" style="background-color:#ffcc66">&nbsp;</font>&nbsp;<font size="4" face="Verdana, Arial, Helvetica, sans-serif" color="Gray">Departemen</font></td>
-    </tr>
-    <tr>
-        <td align="right"><a href="../referensi.php" target="content">
-          <font size="1" face="Verdana" color="#000000"><b>Referensi</b></font></a>&nbsp>&nbsp <font size="1" face="Verdana" color="#000000"><b>Departemen</b></font>
-        </td>
-    </tr>
-     <tr>
-      <td align="left">&nbsp;</td>
-      </tr>
-	</table>
-	<br /><br />
-<?	$sql = "SELECT d.replid,d.departemen,d.nipkepsek,p.nama,d.keterangan,d.aktif 
-			FROM departemen d, pegawai p 
-			WHERE d.nipkepsek = p.nip ORDER BY d.urutan";
-	$result = QueryDb($sql);
-	if (@mysqli_num_rows($result) > 0)
-	{	?>
-    <table border="0" cellpadding="0" cellspacing="0" width="95%" align="center">
-    <!-- TABLE CONTENT -->
-    <tr><td align="right">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departemen</title>
     
-    <a href="#" onClick="refresh()"><img src="../images/ico/refresh.png" border="0" onMouseOver="showhint('Refresh!', this, event, '50px')"/>&nbsp;Refresh</a>&nbsp;&nbsp;
-    <a href="JavaScript:cetak()"><img src="../images/ico/print.png" border="0" onMouseOver="showhint('Cetak!', this, event, '50px')" />&nbsp;Cetak</a>&nbsp;&nbsp;    
-<?	if (SI_USER_LEVEL() != $SI_USER_STAFF) 
-	{ ?>
-	    <a href="JavaScript:tambah()"><img src="../images/ico/tambah.png" border="0" onMouseOver="showhint('Tambah!', this, event, '50px')" />&nbsp;Tambah Departemen</a>
-<?	} ?>    
-    </td></tr>
-    </table><br />
-    <table class="tab" id="table" border="1" style="border-collapse:collapse" width="95%" align="center" bordercolor="#000000">
-    <tr height="30">
-    	<td width="4%" class="header" align="center">No</td>
-        <td width="15%" class="header" align="center">Departemen</td>
-        <td width="*" class="header" align="center">Kepala Sekolah</td>
-        <td width="*" class="header" align="center">Keterangan</td>
-        <td width="10%" class="header" align="center">Status</td>
-        <?	if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
-        <td width="8%" class="header">&nbsp;</td>
-        <?	} ?>
-    </tr>
-<? 	$cnt = 0;
-	while ($row = mysqli_fetch_row($result))
-	{ ?>
-    <tr height="25">
-    	<td align="center"><?=++$cnt ?></td>
-        <td><?=$row[1] ?></td>
-        <td><?=$row[2] . " - " . $row[3] ?></td>
-        <td><?=$row[4] ?></td>
-        <td align="center">
-        
-<?		if (SI_USER_LEVEL() == $SI_USER_STAFF) {  
-			if ($row[5] == 1) { ?> 
-            	<img src="../images/ico/aktif.png" border="0" onMouseOver="showhint('Status Aktif!', this, event, '80px')"/>
-<?			} else { ?>                
-				<img src="../images/ico/nonaktif.png" border="0" onMouseOver="showhint('Status Tidak Aktif!', this, event, '80px')"/>
-<?			}
-		} else { 
-			if ($row[5] == 1) { ?>
-				<a href="JavaScript:setaktif(<?=$row[0] ?>, <?=$row[5] ?>)"><img src="../images/ico/aktif.png" border="0" onMouseOver="showhint('Status Aktif!', this, event, '80px')"/></a>
-<?			} else { ?>
-				<a href="JavaScript:setaktif(<?=$row[0] ?>, <?=$row[5] ?>)"><img src="../images/ico/nonaktif.png" border="0" onMouseOver="showhint('Status Tidak Aktif!', this, event, '80px')"/></a>
-<?			} //end if
-		} //end if ?>        
-        
-        </td>
-<?		if (SI_USER_LEVEL() != $SI_USER_STAFF) {  ?>         
-		<td align="center">
-            <a href="JavaScript:edit(<?=$row[0] ?>)"><img src="../images/ico/ubah.png" border="0" onMouseOver="showhint('Ubah Departemen!', this, event, '80px')" /></a>&nbsp;
-            <a href="JavaScript:hapus(<?=$row[0] ?>)"><img src="../images/ico/hapus.png" border="0" onMouseOver="showhint('Hapus Departemen!', this, event, '80px')"/></a>
-        </td>
-<?		} ?>  
-    </tr>
-<?	} ?>
-    <!-- END TABLE CONTENT -->
-    </table>
-    <script language='JavaScript'>
-	    Tables('table', 1, 0);
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script type="text/javascript">
+        function tambah() {
+            window.open('departemen_add.php', 'TambahDepartemen', 'width=505,height=308,resizable=1,scrollbars=1');
+        }
+
+        function refresh() {
+            window.location.href = "departemen.php";
+        }
+
+        function setaktif(replid, aktif) {
+            var msg, newaktif;
+            
+            if (aktif == 1) {
+                msg = "Apakah anda yakin akan mengubah departemen ini menjadi TIDAK AKTIF?";
+                newaktif = 0;
+            } else {	
+                msg = "Apakah anda yakin akan mengubah departemen ini menjadi AKTIF?";
+                newaktif = 1;
+            }
+            
+            if (confirm(msg)) 
+                window.location.href = "departemen.php?op=dw8dxn8w9ms8zs22&replid="+replid+"&newaktif="+newaktif;
+        }
+
+        function edit(replid) {
+            window.open('departemen_edit.php?replid='+replid, 'UbahDepartemen', 'width=505,height=308,resizable=1,scrollbars=1');
+        }
+
+        function hapus(replid) {
+            if (confirm("Apakah anda yakin akan menghapus departemen ini?"))
+                window.location.href = "departemen.php?op=xm8r389xemx23xb2378e23&replid="+replid;
+        }
+
+        function cetak() {
+            window.open('departemen_cetak.php', 'CetakDepartemen', 'width=790,height=650,resizable=1,scrollbars=1');
+        }
     </script>
+</head>
+<body class="bg-gray-100 font-sans p-4">
 
-	</td></tr>
-<!-- END TABLE CENTER -->    
-</table>
-<?	} else { ?>
+<div class="max-w-7xl mx-auto space-y-4">
 
-<table width="100%" border="0" align="center">
+    <!-- ========================================================================= -->
+    <!-- BAGIAN 1: HEADER / FILTER                                                 -->
+    <!-- ========================================================================= -->
+    <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-5">
+        
+        <!-- Breadcrumb / Title -->
+        <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+            <h2 class="text-xl font-bold text-emerald-900 flex items-center gap-2">
+                <i class="fas fa-building text-emerald-500"></i> Departemen
+            </h2>
+            <div class="text-sm text-gray-500 hidden sm:block">
+                Referensi <i class="fas fa-chevron-right text-xs mx-1"></i> Departemen
+            </div>
+        </div>
 
-<tr>
-	<td align="center" valign="middle" height="250" colspan="2">
-    	<font size = "2" color ="red"><b>Tidak ditemukan adanya data.
-       <? if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
-        <br />Klik &nbsp;<a href="JavaScript:tambah()" ><font size = "2" color ="green">di sini</font></a>&nbsp;untuk mengisi data baru.
-        <? } ?>
-        </p></b></font>
-	</td>
-</tr>
-</table>  
-<? } ?> 
-</td></tr>
-<!-- END TABLE BACKGROUND IMAGE -->
-</table>    
+        <div class="flex flex-col md:flex-row justify-end items-center gap-2">
+            <!-- Action Buttons -->
+            <button onclick="refresh()" class="w-full md:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-1.5 px-3 rounded shadow-sm border border-gray-300 transition flex items-center justify-center gap-2">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button onclick="cetak()" class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1.5 px-3 rounded shadow-sm transition flex items-center justify-center gap-2">
+                <i class="fas fa-print"></i> Cetak
+            </button>
+            <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+            <button onclick="tambah()" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium py-1.5 px-3 rounded shadow-sm transition flex items-center justify-center gap-2">
+                <i class="fas fa-plus"></i> Tambah Departemen
+            </button>
+            <?php } ?>
+        </div>
+    </div>
 
+    <!-- ========================================================================= -->
+    <!-- BAGIAN 2: CONTENT AREA                                                    -->
+    <!-- ========================================================================= -->
+    <div class="bg-white rounded-lg shadow-sm border border-emerald-100 p-5">
+        <?php
+        $sql = "SELECT d.replid, d.departemen, d.nipkepsek, p.nama, d.keterangan, d.aktif 
+                FROM departemen d, pegawai p 
+                WHERE d.nipkepsek = p.nip ORDER BY d.urutan";
+        $result = QueryDb($sql);
+        $jumlah = @mysqli_num_rows($result);
+
+        if ($jumlah > 0) {
+        ?>
+            <!-- Table Data -->
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-emerald-50">
+                        <tr>        
+                            <th class="px-4 py-3 text-center text-xs font-bold text-emerald-800 uppercase tracking-wider w-12">No</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-emerald-800 uppercase tracking-wider">Departemen</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-emerald-800 uppercase tracking-wider">Kepala Sekolah</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-emerald-800 uppercase tracking-wider">Keterangan</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-emerald-800 uppercase tracking-wider w-32">Status</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-emerald-800 uppercase tracking-wider w-24">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php 
+                        $cnt = 0;
+                        while ($row = mysqli_fetch_row($result)) {
+                        ?>    
+                        <tr class="hover:bg-emerald-50 transition duration-150">                    
+                            <td class="px-4 py-2 text-center text-gray-500"><?=++$cnt?></td>
+                            <td class="px-4 py-2 text-gray-900 font-bold"><?=$row[1]?></td>
+                            <td class="px-4 py-2 text-gray-700">
+                                <div class="flex flex-col">
+                                    <span class="font-medium"><?=$row[3]?></span>
+                                    <span class="text-xs text-gray-400"><?=$row[2]?></span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2 text-gray-600"><?=$row[4]?></td>
+                            
+                            <!-- Kolom Status -->
+                            <td class="px-4 py-2 text-center">
+                                <?php 
+                                if (SI_USER_LEVEL() == $SI_USER_STAFF) {  
+                                    if ($row[5] == 1) {
+                                        echo '<span class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-emerald-100 text-emerald-800">Aktif</span>';
+                                    } else {
+                                        echo '<span class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-red-100 text-red-800">Tidak Aktif</span>';
+                                    }
+                                } else { 
+                                    if ($row[5] == 1) { ?>
+                                        <button onclick="setaktif(<?=$row[0]?>, <?=$row[5]?>)" class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition" title="Klik untuk Non-Aktifkan">Aktif</button>
+                                    <?php } else { ?>
+                                        <button onclick="setaktif(<?=$row[0]?>, <?=$row[5]?>)" class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition" title="Klik untuk Aktifkan">Tidak Aktif</button>
+                                    <?php }
+                                } ?>            
+                            </td>
+                            
+                            <!-- Kolom Aksi -->
+                            <td class="px-4 py-2 text-center flex justify-center gap-3">
+                                <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>                
+                                    <button onclick="edit(<?=$row[0]?>)" class="text-amber-500 hover:text-amber-700 transition" title="Ubah">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="hapus(<?=$row[0]?>)" class="text-red-500 hover:text-red-700 transition" title="Hapus">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                <?php } ?>
+                            </td>
+                        </tr>
+                        <?php } ?>            
+                    </tbody>
+                </table>
+            </div>
+        <?php } else { ?>
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center p-16 text-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <i class="fas fa-building text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">Belum Ada Departemen</h3>
+                <p class="text-gray-500 max-w-md mb-6">
+                    Silakan tambahkan data departemen sekolah terlebih dahulu.
+                </p>
+                <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+                <button onclick="tambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded shadow transition flex items-center gap-2">
+                    <i class="fas fa-plus"></i> Tambah Departemen
+                </button>
+                <?php } ?>
+            </div>
+        <?php } ?>
+    </div>
+
+</div>
+
+<?php CloseDb(); ?>
 </body>
 </html>
-<? CloseDb();?>
